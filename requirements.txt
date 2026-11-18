@@ -1,0 +1,17 @@
+numpy<2.0
+PySide6
+Pillow
+opencv-python-headless
+mss
+pyautogui
+imagehash
+rapidocr-onnxruntime
+scikit-learn
+scipy
+hdbscan
+faiss-cpu
+pydantic
+structlog
+torch
+transformers
+msgpack
