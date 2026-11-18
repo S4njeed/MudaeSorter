@@ -256,6 +256,46 @@ class TestMudaePipeline(unittest.TestCase):
         win.close()
         app.processEvents()
 
+    def test_cross_platform_installer_staging(self) -> None:
+        import sys
+        import tarfile
+        from build_installer import (
+            build_linux_installers,
+            build_windows_msi,
+            stage_linux_package_tree,
+            stage_macos_app_bundle,
+        )
+
+        dummy_bin = self.root / "MudaePowerTools-Dummy"
+        dummy_bin.write_bytes(b"MUDAE_BINARY_PAYLOAD")
+
+        mac_stage = self.root / "mac_stage"
+        app_dir = stage_macos_app_bundle(dummy_bin, mac_stage, version="3.0.0")
+        self.assertTrue((app_dir / "Contents" / "Info.plist").is_file())
+        self.assertTrue((app_dir / "Contents" / "MacOS" / "MudaePowerTools").is_file())
+        self.assertIn("com.s4njeed.mudaepowertools", (app_dir / "Contents" / "Info.plist").read_text(encoding="utf-8"))
+
+        linux_stage = self.root / "linux_stage"
+        deb_root, tar_root = stage_linux_package_tree(dummy_bin, linux_stage, version="3.0.0", arch="x64")
+        self.assertIn("Package: mudaepowertools", (deb_root / "DEBIAN" / "control").read_text(encoding="utf-8"))
+        self.assertTrue((deb_root / "usr" / "share" / "applications" / "mudaepowertools.desktop").is_file())
+        self.assertTrue((tar_root / "install.sh").is_file())
+        self.assertTrue((tar_root / "uninstall.sh").is_file())
+
+        linux_dist = self.root / "linux_dist"
+        linux_outputs = build_linux_installers(dummy_bin, linux_dist, version="3.0.0", arch="x64")
+        tar_pkgs = [p for p in linux_outputs if p.name.endswith("-installer.tar.gz")]
+        self.assertEqual(len(tar_pkgs), 1)
+        with tarfile.open(tar_pkgs[0], "r:gz") as tf:
+            names = tf.getnames()
+            self.assertTrue(any(n.endswith("/install.sh") for n in names))
+
+        if sys.platform == "win32":
+            msi_dist = self.root / "msi_dist"
+            msi_path = build_windows_msi(dummy_bin, msi_dist, version="3.0.0", arch="x64")
+            self.assertTrue(msi_path.is_file())
+            self.assertGreater(msi_path.stat().st_size, 1024)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

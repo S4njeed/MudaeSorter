@@ -69,17 +69,22 @@ Launch the app from source:
 .\run.bat
 ```
 
-### Building Standalone Single-File Binaries (Windows / macOS / Linux)
+### Building Standalone Single-File Binaries & Native Installers (Windows / macOS / Linux)
 
-You can compile a single-file executable for your current OS with:
+You can compile a single-file executable and native OS installer for your current OS with:
 
 ```powershell
 .\.venv\Scripts\python.exe build_binary.py
+.\.venv\Scripts\python.exe build_installer.py
 ```
 
-This creates `dist/MudaePowerTools-Windows-x64.exe` (or `MudaePowerTools-macOS-arm64` / `MudaePowerTools-Linux-x64` on macOS/Linux) bundling PySide6, RapidOCR ONNX models, OKLab 2-Opt TSP / 3D Hilbert, FAISS, and HDBSCAN. Pass `--with-torch` if you want to embed PyTorch/Transformers inside the single binary as well.
+* **Windows**: Produces `dist/MudaePowerTools-Windows-x64.exe` and `dist/MudaePowerTools-3.0.0-Windows-x64.msi` (installs to Program Files with Start Menu & Desktop shortcuts and Add/Remove Programs support).
+* **macOS**: Produces `dist/MudaePowerTools-macOS-arm64`, `.app` bundle, `dist/MudaePowerTools-3.0.0-macOS-arm64.dmg`, and `dist/MudaePowerTools-3.0.0-macOS-arm64.pkg`.
+* **Linux**: Produces `dist/MudaePowerTools-Linux-x64`, `dist/mudaepowertools_3.0.0_amd64.deb` (`sudo apt install ./mudaepowertools_3.0.0_amd64.deb`), and `dist/MudaePowerTools-3.0.0-Linux-x64-installer.tar.gz` (`./install.sh` for Arch/Fedora/other distros).
 
-Cross-platform builds for **Windows (`x64`)**, **macOS (`arm64`)**, and **Linux (`x64`)** also run automatically in GitHub Actions via [.github/workflows/build-binaries.yml](.github/workflows/build-binaries.yml) and attach binaries to GitHub Releases on version tags (`v*`).
+Pass `--with-torch` to `build_binary.py` if you want to embed PyTorch/Transformers inside the single binary.
+
+Cross-platform binaries and installers for **Windows (`x64`)**, **macOS (`arm64`)**, and **Linux (`x64`)** are built automatically in GitHub Actions via [.github/workflows/build-binaries.yml](.github/workflows/build-binaries.yml) and attached to GitHub Releases on version tags (`v*`).
 
 Run verification tests:
 

@@ -80,6 +80,10 @@ jobs:
           chmod +x "dist/${{ matrix.bin_name }}"
           "./dist/${{ matrix.bin_name }}" --smoke-test
 
+      - name: Build native OS installer (.msi / .dmg+.pkg / .deb+.tar.gz)
+        run: |
+          python build_installer.py
+
       - name: Package macOS .app bundle (if generated)
         if: runner.os == 'macOS'
         run: |
@@ -87,12 +91,17 @@ jobs:
             ditto -c -k --sequesterRsrc --keepParent "dist/MudaePowerTools-macOS-arm64.app" "dist/MudaePowerTools-macOS-arm64-app.zip"
           fi
 
-      - name: Upload standalone binary artifact
+      - name: Upload standalone binaries & installers
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.bin_name }}
           path: |
             dist/${{ matrix.bin_name }}
+            dist/*.msi
+            dist/*.dmg
+            dist/*.pkg
+            dist/*.deb
+            dist/*-installer.tar.gz
             dist/*-app.zip
           if-no-files-found: error
 
