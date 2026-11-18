@@ -9,12 +9,16 @@ from typing import Optional, Tuple
 
 import mss
 import numpy as np
-import pyautogui
 
 from .config import RegionTuple, logger
 
-pyautogui.FAILSAFE = True
-pyautogui.PAUSE = 0.02
+try:
+    import pyautogui
+
+    pyautogui.FAILSAFE = True
+    pyautogui.PAUSE = 0.02
+except Exception:
+    pyautogui = None
 
 
 def enable_dpi_awareness() -> None:
@@ -78,6 +82,9 @@ class ScreenCapture:
     @staticmethod
     def click_region_center(region: RegionTuple, restore_cursor: bool = True) -> bool:
         """Click the center of a screen region, optionally restoring the user's cursor."""
+        if pyautogui is None:
+            logger.warning("PyAutoGUI unavailable in current display environment")
+            return False
         try:
             x1, y1, x2, y2 = (int(v) for v in region)
             cx = (x1 + x2) // 2

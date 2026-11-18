@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 import time
 import uuid
 from enum import Enum
@@ -26,13 +27,16 @@ def configure_logging(log_dir: Optional[Path] = None) -> structlog.stdlib.BoundL
     target_dir = log_dir or CONFIG_DIR
     target_dir.mkdir(parents=True, exist_ok=True)
 
+    handlers: list[logging.Handler] = [
+        logging.FileHandler(target_dir / "mudae_tools.log", encoding="utf-8"),
+    ]
+    if sys.stderr is not None:
+        handlers.insert(0, logging.StreamHandler())
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(message)s",
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler(target_dir / "mudae_tools.log", encoding="utf-8"),
-        ],
+        handlers=handlers,
     )
     logging.getLogger("faiss").setLevel(logging.WARNING)
     logging.getLogger("faiss.loader").setLevel(logging.WARNING)

@@ -63,11 +63,23 @@ python -m venv .venv
 .\.venv\Scripts\pip.exe install --upgrade torch --index-url https://download.pytorch.org/whl/cu124
 ```
 
-Launch the app:
+Launch the app from source:
 
 ```powershell
 .\run.bat
 ```
+
+### Building Standalone Single-File Binaries (Windows / macOS / Linux)
+
+You can compile a single-file executable for your current OS with:
+
+```powershell
+.\.venv\Scripts\python.exe build_binary.py
+```
+
+This creates `dist/MudaePowerTools-Windows-x64.exe` (or `MudaePowerTools-macOS-arm64` / `MudaePowerTools-Linux-x64` on macOS/Linux) bundling PySide6, RapidOCR ONNX models, OKLab 2-Opt TSP / 3D Hilbert, FAISS, and HDBSCAN. Pass `--with-torch` if you want to embed PyTorch/Transformers inside the single binary as well.
+
+Cross-platform builds for **Windows (`x64`)**, **macOS (`arm64`)**, and **Linux (`x64`)** also run automatically in GitHub Actions via [.github/workflows/build-binaries.yml](.github/workflows/build-binaries.yml) and attach binaries to GitHub Releases on version tags (`v*`).
 
 Run verification tests:
 
@@ -82,19 +94,19 @@ $env:PYTHONPATH = "."
 
 ### A. Capturing Directly from Discord
 1. Open Discord to your harem (`$mm i` or `$im <character>` / `$mmi` embed view with next/previous arrow buttons).
-2. **(Recommended Tip)** Run `$mma` or `$mms` in Discord, copy the character list text, and click **📋 Paste Mudae Text List...** in Tab 1 first. This teaches the OCR fuzzy corrector every exact character & series name in your harem.
+2. **(Recommended Tip)** Run `$mma` or `$mms` in Discord, copy the character list text, and click **📋 Paste Text List...** in Tab 1 first. This teaches the OCR fuzzy corrector every exact character & series name in your harem.
 3. Click each region selector in **Tab 1 (Scraper & Import)**:
    - **Select Card Image Region**: Drag tightly around the character artwork image.
    - **Select Character Name OCR**: Drag around the character's name header.
    - **Select Series Name OCR**: Drag around the anime/game series subtitle.
    - **Select Next Button**: Click (or drag around) Discord's `▶` pagination button.
-4. Set **Pages to capture** and **Delay** (`1.0–1.5s` works reliably with Discord rate limits), then click **▶ Start Live Scraping**.
+4. Set **Pages to capture** and **Delay** (`1.0–1.5s` works reliably with Discord rate limits), then click **▶ Start Scraping**.
    - Move the mouse to the top-left corner of your primary monitor at any time to trigger PyAutoGUI's emergency failsafe stop, or press **■ Stop**.
 
 ### B. Sorting & Fine-Tuning in the Harem Grid
 1. Switch to **Tab 2 (AI Sorter & Grid)**.
 2. Choose **5 cols (Mudae Page)** to preview exact Mudae Discord page boundaries (10 cards per `$mm i` page or 15 per page depending on layout).
-3. Run **OKLab Color Gradient (2-Opt TSP)** for the smoothest color flow, **3D Hilbert Color Curve** for fast locality-preserving grouping, **CLIP / SigLIP Similarity (FAISS + TSP)** for art-style continuity, **Theme Clusters (HDBSCAN)** for automatic aesthetic sections, or enter a natural-language prompt (e.g., `"pink hair"`, `"dark armor"`) in the search bar.
+3. Run **OKLab Gradient (2-Opt)** for the smoothest color flow, **3D Hilbert Curve** for fast locality-preserving grouping, **Vision Similarity (TSP)** for art-style continuity, **Theme Clusters (HDBSCAN)** for automatic aesthetic sections, or enter a natural-language prompt (e.g., `"pink hair"`, `"dark armor"`) in the search bar.
 4. Fine-tune manually by **clicking two cards to swap**, **dragging & dropping**, using **◀ / ▶**, or **double-clicking** any card to edit its name/series.
 
 ### C. Exporting `$sm` / `$smp` Commands to Discord
@@ -103,6 +115,6 @@ $env:PYTHONPATH = "."
 3. If your harem spans multiple batches, paste **Batch #2**, **Batch #3**, etc. in order—each subsequent batch starts with `$smp <LastCharOfPrevBatch> $...` (`$sortmarrypos`) so Mudae inserts the next batch immediately after the previous batch without overwriting your earlier sort.
 
 ### Troubleshooting
-* **OCR skips or misreads stylized fonts**: Use **📋 Paste Mudae Text List...** in Tab 1 to populate the fuzzy lexicon, or double-click any card in Tab 2 to edit its name directly.
+* **OCR skips or misreads stylized fonts**: Use **📋 Paste Text List...** in Tab 1 to populate the fuzzy lexicon, or double-click any card in Tab 2 to edit its name directly.
 * **Duplicate frames skipped repeatedly**: Discord may take slightly longer than your delay to flip pages—increase **Delay (sec)** to `1.5s` or lower **Duplicate Frame Threshold** in Tab 4.
 * **First neural SigLIP/CLIP sort pauses briefly**: `transformers` downloads the selected Hugging Face weights (`openai/clip-vit-base-patch32` or `google/siglip-base-patch16-224`) once and caches them locally under `~/.cache/huggingface`. You can also disable neural weights in Tab 4 for instant offline OKLab sorting.
